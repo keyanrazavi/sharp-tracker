@@ -1,1 +1,327 @@
-<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Sharp Tracker — UFC & Tennis</title> <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet"> <style> :root{--bg:#0a0a0a;--s1:#111;--s2:#181818;--b1:#222;--b2:#2a2a2a;--text:#e8e8e8;--muted:#555;--dim:#333;--green:#00ff88;--gdim:#001a0d;--gmid:#00cc66;--red:#ff3355;--amber:#ffaa00;--adim:#1a1000;--purple:#aa77ff;--pdim:#140a26;} *{margin:0;padding:0;box-sizing:border-box;} body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:14px;min-height:100vh;padding:20px;} .scanline{position:fixed;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.025) 2px,rgba(0,0,0,0.025) 4px);pointer-events:none;z-index:0;} .wrap{max-width:1200px;margin:0 auto;position:relative;z-index:1;} header{display:flex;align-items:flex-end;justify-content:space-between;border-bottom:1px solid var(--b1);padding-bottom:14px;margin-bottom:20px;} .logo-main{font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:600;letter-spacing:-0.5px;} .ufc-col{color:var(--green);}.sep{color:var(--dim);margin:0 6px;}.ten-col{color:var(--purple);} .logo-sub{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:3px;} .hdr-right{display:flex;align-items:center;gap:12px;} .live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s infinite;} .live-dot.loading{background:var(--amber);box-shadow:0 0 8px var(--amber);animation:none;} .live-dot.error{background:var(--red);box-shadow:0 0 8px var(--red);animation:none;} @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}} .status-text{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);} .sport-tabs{display:flex;gap:0;margin-bottom:20px;border-bottom:1px solid var(--b1);} .sport-tab{font-family:'IBM Plex Mono',monospace;font-size:12px;text-transform:uppercase;letter-spacing:1px;padding:10px 24px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.15s;} .sport-tab.active-ufc{color:var(--green);border-bottom-color:var(--green);} .sport-tab.active-tennis{color:var(--purple);border-bottom-color:var(--purple);} .sport-tab.active-act{color:var(--amber);border-bottom-color:var(--amber);} .tab-count{font-size:10px;margin-left:4px;opacity:0.7;} .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;} .metric{background:var(--s1);border:1px solid var(--b1);padding:14px;font-family:'IBM Plex Mono',monospace;} .metric-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;} .metric-val{font-size:24px;font-weight:600;color:var(--text);} .gc{color:var(--green);}.pc{color:var(--purple);}.ac{color:var(--amber);} .controls{display:flex;align-items:center;gap:10px;margin-bottom:14px;} button{background:transparent;border:1px solid var(--b2);color:var(--text);padding:7px 14px;font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;transition:all 0.15s;} button.ufc-btn:hover{border-color:var(--green);color:var(--green);} button.ten-btn:hover{border-color:var(--purple);color:var(--purple);} select{background:var(--s1);border:1px solid var(--b2);color:var(--text);padding:7px 10px;font-family:'IBM Plex Mono',monospace;font-size:12px;} .last-upd{margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);} .alert{border:1px solid var(--amber);background:var(--adim);padding:10px 14px;margin-bottom:14px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--amber);display:none;} .section-head{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:2px;border-bottom:1px solid var(--b1);padding-bottom:7px;margin-bottom:10px;} .two-col{display:grid;grid-template-columns:1fr 320px;gap:18px;align-items:start;} .positions-area{display:flex;flex-direction:column;gap:8px;} .no-pos{background:var(--s1);border:1px solid var(--b1);padding:28px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);} .pos-card{background:var(--s1);border:1px solid var(--b1);padding:14px;transition:border-color 0.2s;animation:fadeIn 0.3s ease;} .pos-card.new-ufc{border-color:var(--green);background:var(--gdim);} .pos-card.new-tennis{border-color:var(--purple);background:var(--pdim);} @keyframes fadeIn{from{opacity:0;transform:translateY(-3px);}to{opacity:1;transform:none;}} .pos-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:7px;} .pos-trader{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;text-decoration:none;} .pos-trader.gt{color:var(--green);}.pos-trader.gt:hover{text-decoration:underline;} .pos-trader.pt{color:var(--purple);}.pos-trader.pt:hover{text-decoration:underline;} .pos-trader-meta{font-size:11px;color:var(--muted);margin-top:2px;} .new-badge{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:2px 8px;font-weight:600;} .nb-ufc{background:var(--green);color:#000;}.nb-tennis{background:var(--purple);color:#000;} .pos-pick{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;color:var(--text);margin-bottom:3px;} .pos-event{font-size:11px;color:var(--muted);margin-bottom:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .pos-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;} .stat{background:var(--s2);padding:7px 9px;} .stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;} .stat-val{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;color:var(--text);} .stat-val.pos{color:var(--green);}.stat-val.neg{color:var(--red);} .sharps-list{display:flex;flex-direction:column;gap:5px;} .sharp-row{background:var(--s1);border:1px solid var(--b1);padding:9px 11px;display:flex;align-items:center;gap:9px;transition:border-color 0.2s;} .sharp-row.au{border-color:var(--gmid);}.sharp-row.at{border-color:var(--purple);} .sharp-rank{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--dim);width:18px;flex-shrink:0;text-align:center;} .sharp-avatar{width:26px;height:26px;border-radius:2px;background:var(--s2);border:1px solid var(--b2);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;color:var(--muted);flex-shrink:0;} .sharp-row.au .sharp-avatar{color:var(--green);border-color:var(--green);} .sharp-row.at .sharp-avatar{color:var(--purple);border-color:var(--purple);} .sharp-info{flex:1;min-width:0;} .sharp-name{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:none;color:var(--text);display:block;} .sharp-name.ul:hover{color:var(--green);}.sharp-name.pl:hover{color:var(--purple);} .sharp-stats{font-size:10px;color:var(--muted);margin-top:1px;} .sharp-status{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:2px 6px;border:1px solid var(--b2);color:var(--muted);flex-shrink:0;} .sharp-row.au .sharp-status{border-color:var(--green);color:var(--green);} .sharp-row.at .sharp-status{border-color:var(--purple);color:var(--purple);} .inner-tabs{display:flex;gap:0;margin-bottom:14px;border-bottom:1px solid var(--b1);} .inner-tab{font-family:'IBM Plex Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:1px;padding:7px 16px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;} .inner-tab.active{color:var(--text);border-bottom-color:var(--text);} .activity-feed{display:flex;flex-direction:column;gap:5px;} .activity-row{background:var(--s1);border:1px solid var(--b1);padding:9px 13px;display:flex;gap:10px;font-family:'IBM Plex Mono',monospace;animation:fadeIn 0.3s ease;} .act-time{font-size:10px;color:var(--muted);flex-shrink:0;margin-top:1px;} .act-body{font-size:12px;color:var(--text);line-height:1.5;} .au-t{color:var(--green);}.at-t{color:var(--purple);}.act-pick{color:var(--amber);} @media(max-width:900px){.two-col{grid-template-columns:1fr;}.metrics{grid-template-columns:repeat(2,1fr);}.pos-stats{grid-template-columns:repeat(2,1fr);}} </style> </head> <body> <div class="scanline"></div> <div class="wrap"> <header> <div> <div class="logo-main"><span class="ufc-col">UFC</span><span class="sep">/</span><span class="ten-col">TENNIS</span> SHARP TRACKER</div> <div class="logo-sub">Polymarket · 20 Elite Wallets · Live</div> </div> <div class="hdr-right"> <div class="live-dot loading" id="dot"></div> <div class="status-text" id="statusText">initializing...</div> </div> </header> <div class="sport-tabs"> <div class="sport-tab active-ufc" id="stUFC" onclick="switchSport('ufc')">UFC <span class="tab-count" id="ufcCnt"></span></div> <div class="sport-tab" id="stTennis" onclick="switchSport('tennis')">Tennis <span class="tab-count" id="tenCnt"></span></div> <div class="sport-tab" id="stAct" onclick="switchSport('activity')">Activity Log <span class="tab-count" id="actCnt"></span></div> </div> <!-- UFC PANEL --> <div id="ufcPanel"> <div class="metrics"> <div class="metric"><div class="metric-label">UFC sharps tracked</div><div class="metric-val gc">10</div></div> <div class="metric"><div class="metric-label">open positions</div><div class="metric-val gc" id="u-mPos">—</div></div> <div class="metric"><div class="metric-label">sharps active</div><div class="metric-val ac" id="u-mAct">—</div></div> <div class="metric"><div class="metric-label">last refresh</div><div class="metric-val" id="u-mTime" style="font-size:14px;">—</div></div> </div> <div class="alert" id="u-alert"></div> <div class="controls"> <button class="ufc-btn" onclick="refresh('ufc')" id="u-btn">[ refresh UFC ]</button> <select id="u-int" onchange="setAuto('ufc')"> <option value="0">manual only</option> <option value="30">every 30s</option> <option value="60" selected>every 60s</option> <option value="120">every 2min</option> <option value="300">every 5min</option> </select> <span class="last-upd" id="u-upd">—</span> </div> <div class="inner-tabs"> <div class="inner-tab active" onclick="innerTab('ufc','pos',this)">positions</div> <div class="inner-tab" onclick="innerTab('ufc','all',this)">all sharps</div> </div> <div id="ufc-pos"> <div class="two-col"> <div><div class="section-head">open UFC positions — live via polymarket API</div><div class="positions-area" id="u-posArea"><div class="no-pos">loading...</div></div></div> <div><div class="section-head">UFC roster</div><div class="sharps-list" id="u-roster"></div></div> </div> </div> <div id="ufc-all" style="display:none;"> <div class="section-head">all 10 UFC sharps — click name to open Polymarket profile</div> <div class="sharps-list" id="u-all"></div> </div> </div> <!-- TENNIS PANEL --> <div id="tennisPanel" style="display:none;"> <div class="metrics"> <div class="metric"><div class="metric-label">Tennis sharps tracked</div><div class="metric-val pc">10</div></div> <div class="metric"><div class="metric-label">open positions</div><div class="metric-val pc" id="t-mPos">—</div></div> <div class="metric"><div class="metric-label">sharps active</div><div class="metric-val ac" id="t-mAct">—</div></div> <div class="metric"><div class="metric-label">last refresh</div><div class="metric-val" id="t-mTime" style="font-size:14px;">—</div></div> </div> <div class="alert" id="t-alert"></div> <div class="controls"> <button class="ten-btn" onclick="refresh('tennis')" id="t-btn">[ refresh Tennis ]</button> <select id="t-int" onchange="setAuto('tennis')"> <option value="0">manual only</option> <option value="30">every 30s</option> <option value="60" selected>every 60s</option> <option value="120">every 2min</option> <option value="300">every 5min</option> </select> <span class="last-upd" id="t-upd">—</span> </div> <div class="inner-tabs"> <div class="inner-tab active" onclick="innerTab('tennis','pos',this)">positions</div> <div class="inner-tab" onclick="innerTab('tennis','all',this)">all sharps</div> </div> <div id="tennis-pos"> <div class="two-col"> <div><div class="section-head">open Tennis positions — live via polymarket API</div><div class="positions-area" id="t-posArea"><div class="no-pos">loading...</div></div></div> <div><div class="section-head">Tennis roster</div><div class="sharps-list" id="t-roster"></div></div> </div> </div> <div id="tennis-all" style="display:none;"> <div class="section-head">all 10 Tennis sharps — click name to open Polymarket profile</div> <div class="sharps-list" id="t-all"></div> </div> </div> <!-- ACTIVITY PANEL --> <div id="actPanel" style="display:none;"> <div class="section-head">activity log — all new positions detected this session</div> <div class="activity-feed" id="actFeed"><div class="no-pos">monitoring... no new positions detected yet</div></div> </div> </div> <script> const UFC = [ {n:'LlamaEnjoyer', w:'0x9b979a065641e8cfde3022a30ed2d9415cf55e12', pm:'llamaenjoyer', roi:932, wr:97.4, pnl:124140, tr:417}, {n:'MaiHaze', w:'0x8f053ac26c46b27f304cb51ae35dc6f677e3c0b8', pm:'maihaze', roi:1096,wr:88.5, pnl:68259, tr:98}, {n:'JonasTheWolf', w:'0x0940a70f216e2fd077f4f01044c4152f05e13640', pm:null, roi:476, wr:85.7, pnl:21242, tr:14}, {n:'gmanas', w:'0xe90bec87d9ef430f27f9dcfe72c34b76967d5da2', pm:null, roi:284, wr:63.6, pnl:604921, tr:48}, {n:'supamanguy', w:'0xa4f5650a655502b2e2bc66636d347a2fd8281079', pm:null, roi:400, wr:66.7, pnl:145457, tr:16}, {n:'ilovecircle', w:'0xa9878e59934ab507f9039bcb917c1bae0451141d', pm:null, roi:188, wr:70.0, pnl:308784, tr:29}, {n:'MrSparkly', w:'0xd0b4c4c020abdc88ad9a884f999f3d8cff8ffed6', pm:null, roi:157, wr:73.3, pnl:284451, tr:16}, {n:'Tiger200', w:'0x6211f97a76ed5c4b1d658f637041ac5f293db89e', pm:null, roi:164, wr:83.3, pnl:203257, tr:6}, {n:'gopfan2', w:'0xf2f6af4f27ec2dcf4072095ab804016e14cd5817', pm:null, roi:193, wr:71.4, pnl:86095, tr:15}, {n:'S-Works', w:'0xee00ba338c59557141789b127927a55f5cc5cea1', pm:null, roi:87, wr:78.6, pnl:225755, tr:149}, ]; const TENNIS = [ {n:'AgricultureSecretary', w:'0x6ffb4354cbe6e0f9989e3b55564ec5fb8646a834', pm:'AgricultureSecretary', roi:2051,wr:95.2, pnl:67526, tr:310}, {n:'Jrdvbzf', w:'0xc45014250244ba18981aed4dd30378b558b6e677', pm:'Jrdvbzf', roi:1179,wr:77.8, pnl:123232, tr:10}, {n:'0x246b', w:'0x246be8a4e3805e318801b79ad1ee1268d5fbfb5b', pm:null, roi:1057,wr:83.5, pnl:86584, tr:88}, {n:'Vanchalkenstein', w:'0x9c16127eccf031df45461ef1e04b52ea286a09cb', pm:'Vanchalkenstein', roi:1035,wr:67.7, pnl:258430, tr:33}, {n:'Comeback12345', w:'0x743510ee9f21e24071c4e28edab4653df44ea620', pm:'Comeback12345', roi:1034,wr:80.0, pnl:83241, tr:33}, {n:'Kakusthavarma', w:'0x5ec1272b672931a308175a122f6f191cd7bc057c', pm:'Kakusthavarma', roi:888, wr:86.4, pnl:105338, tr:23}, {n:'AleksandrKostyliev', w:'0xee035898c9ec311c6692e08b465ea388380c3eea', pm:'AleksandrKostyliev', roi:844, wr:80.0, pnl:110615, tr:59}, {n:'Stavenson', w:'0xf5fe759cece500f58a431ef8dacea321f6e3e23d', pm:'Stavenson', roi:377, wr:89.7, pnl:144350, tr:327}, {n:'08AF', w:'0x49007e1e636d0e922d0122a02ea743e41d194a72', pm:'08AF', roi:380, wr:88.2, pnl:68226, tr:178}, {n:'LawsuitEvidence', w:'0x4c814578c17f53118b312165873059a463a0fce3', pm:'LawsuitEvidenceForColeBartiromo19', roi:591,wr:91.7, pnl:61383, tr:29}, ]; const UFC_KW=['ufc','mma','fight night','zuffa','octagon']; const TEN_KW=['tennis','atp','wta','wimbledon','french open','us open','australian open','roland garros','monte carlo','madrid','indian wells','miami','rome masters','barcelona open','munich','estoril','lyon','geneva','halle']; // CORS proxy — routes github.io → data-api.polymarket.com without CORS block const PROXY = 'https://corsproxy.io/?url='; let timers={ufc:null,tennis:null}; let prevK={ufc:new Set(),tennis:new Set()}; let actLog=[]; function pmLink(t){ return t.pm ? `https://polymarket.com/@${t.pm}` : `https://polymarket.com/profile/${t.w}`; } function relevant(title,sport){ const txt=(title||'').toLowerCase(); return (sport==='ufc'?UFC_KW:TEN_KW).some(k=>txt.includes(k)); } function fmt$(n){ const a=Math.abs(Math.round(n)); return a>=1000?'$'+(a/1000).toFixed(1)+'k':'$'+a; } function ini(n){ return n.slice(0,2).toUpperCase(); } function tnow(){ return new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'}); } function setStatus(t,type){ document.getElementById('statusText').textContent=t; document.getElementById('dot').className='live-dot'+(type?' '+type:''); } async function fetchT(t,sport){ const target=`https://data-api.polymarket.com/positions?user=${t.w}&sizeThreshold=0.01&limit=500`; const r=await fetch(PROXY+encodeURIComponent(target)); if(!r.ok) throw new Error('HTTP '+r.status); const d=await r.json(); return (d||[]).filter(p=>p.currentValue>0.5&&relevant(p.title,sport)).map(p=>({ name:t.n,roi:t.roi,wr:t.wr,w:t.w,pm:t.pm,sport, title:p.title,outcome:p.outcome, val:p.currentValue,inv:p.initialValue,pnl:p.cashPnl,pct:p.percentPnl, key:t.w+'|'+p.asset })); } function renderPos(all,sport){ const p=sport==='ufc'?'u':'t'; const newK=new Set(all.map(x=>x.key)); const newOnes=all.filter(x=>prevK[sport].size>0&&!prevK[sport].has(x.key)); if(newOnes.length){ const al=document.getElementById(p+'-alert'); al.style.display='block'; al.textContent='>> NEW: '+newOnes.map(x=>x.name.toUpperCase()+' → '+x.title+' ['+x.outcome+']').join(' | '); newOnes.forEach(x=>actLog.unshift({time:tnow(),name:x.name,title:x.title,outcome:x.outcome,val:x.val,sport})); renderAct(); document.getElementById('actCnt').textContent='['+actLog.length+']'; } prevK[sport]=newK; const area=document.getElementById(p+'-posArea'); const isufc=sport==='ufc'; if(!all.length){area.innerHTML='<div class="no-pos">no open '+sport+' positions among tracked sharps<br>monitoring continues...</div>';return;} area.innerHTML=all.map(x=>{ const isNew=newOnes.some(n=>n.key===x.key); const pc=x.pnl>0?'pos':x.pnl<0?'neg':''; const ps=(x.pnl>=0?'+':'-')+fmt$(x.pnl); const link=x.pm?`https://polymarket.com/@${x.pm}`:`https://polymarket.com/profile/${x.w}`; return `<div class="pos-card${isNew?isufc?' new-ufc':' new-tennis':''}"> <div class="pos-top"> <div> <a class="pos-trader ${isufc?'gt':'pt'}" href="${link}" target="_blank">${x.name}</a> <div class="pos-trader-meta">ROI ${x.roi}% · ${x.wr}% win rate</div> </div> ${isNew?`<span class="new-badge ${isufc?'nb-ufc':'nb-tennis'}">NEW</span>`:''} </div> <div class="pos-pick">${x.outcome}</div> <div class="pos-event">${x.title}</div> <div class="pos-stats"> <div class="stat"><div class="stat-label">invested</div><div class="stat-val">${fmt$(x.inv)}</div></div> <div class="stat"><div class="stat-label">value now</div><div class="stat-val">${fmt$(x.val)}</div></div> <div class="stat"><div class="stat-label">unrealized</div><div class="stat-val ${pc}">${ps}</div></div> <div class="stat"><div class="stat-label">% P&L</div><div class="stat-val ${pc}">${Math.round(x.pct)}%</div></div> </div> </div>`; }).join(''); } function renderRoster(all,sport,id){ const traders=sport==='ufc'?UFC:TENNIS; const active=new Set(all.map(x=>x.name)); const isufc=sport==='ufc'; document.getElementById(id).innerHTML=traders.map((t,i)=>{ const isA=active.has(t.n); const link=pmLink(t); return `<div class="sharp-row${isA?(isufc?' au':' at'):''}"> <div class="sharp-rank">${i+1}</div> <div class="sharp-avatar">${ini(t.n)}</div> <div class="sharp-info"> <a class="sharp-name ${isufc?'ul':'pl'}" href="${link}" target="_blank">${t.n}</a> <div class="sharp-stats">ROI ${t.roi}% · WR ${t.wr}% · ${t.tr} trades · +${fmt$(t.pnl)}</div> </div> <div class="sharp-status">${isA?'LIVE':'idle'}</div> </div>`; }).join(''); } function renderAct(){ const f=document.getElementById('actFeed'); if(!actLog.length){f.innerHTML='<div class="no-pos">monitoring... no new positions detected yet</div>';return;} f.innerHTML=actLog.map(a=>`<div class="activity-row"> <div class="act-time">${a.time}</div> <div class="act-body"> <span class="${a.sport==='ufc'?'au-t':'at-t'}">${a.name}</span> [${a.sport.toUpperCase()}] opened <span class="act-pick">${a.outcome}</span> on ${a.title} · ${fmt$(a.val)} </div> </div>`).join(''); } async function refresh(sport){ const p=sport==='ufc'?'u':'t'; const traders=sport==='ufc'?UFC:TENNIS; setStatus('fetching '+sport+'...','loading'); document.getElementById(p+'-btn').textContent='[ fetching... ]'; document.getElementById(p+'-alert').style.display='none'; try{ const res=await Promise.all(traders.map(t=>fetchT(t,sport))); const all=res.flat(); renderPos(all,sport); renderRoster(all,sport,p+'-roster'); renderRoster(all,sport,p+'-all'); const actC=new Set(all.map(x=>x.name)).size; document.getElementById(p+'-mPos').textContent=all.length; document.getElementById(p+'-mAct').textContent=actC; const tn=tnow(); document.getElementById(p+'-mTime').textContent=tn; document.getElementById(p+'-upd').textContent='refreshed '+tn; document.getElementById(sport==='ufc'?'ufcCnt':'tenCnt').textContent=all.length>0?'['+all.length+']':''; setStatus('live · corsproxy.io → data-api.polymarket.com',''); }catch(e){ setStatus('error: '+e.message,'error'); document.getElementById(p+'-posArea').innerHTML='<div class="no-pos">fetch error: '+e.message+'</div>'; } document.getElementById(p+'-btn').textContent=sport==='ufc'?'[ refresh UFC ]':'[ refresh Tennis ]'; } function setAuto(sport){ if(timers[sport]) clearInterval(timers[sport]); const s=parseInt(document.getElementById(sport==='ufc'?'u-int':'t-int').value); if(s>0) timers[sport]=setInterval(()=>refresh(sport),s*1000); } function switchSport(sport){ document.getElementById('ufcPanel').style.display=sport==='ufc'?'':'none'; document.getElementById('tennisPanel').style.display=sport==='tennis'?'':'none'; document.getElementById('actPanel').style.display=sport==='activity'?'':'none'; document.getElementById('stUFC').className='sport-tab'+(sport==='ufc'?' active-ufc':''); document.getElementById('stTennis').className='sport-tab'+(sport==='tennis'?' active-tennis':''); document.getElementById('stAct').className='sport-tab'+(sport==='activity'?' active-act':''); } function innerTab(sport,view,el){ const p=sport==='ufc'?'ufc':'tennis'; document.getElementById(p+'-pos').style.display=view==='pos'?'':'none'; document.getElementById(p+'-all').style.display=view==='all'?'':'none'; el.closest('.inner-tabs').querySelectorAll('.inner-tab').forEach(t=>t.classList.remove('active')); el.classList.add('active'); } // Init rosters renderRoster([],'ufc','u-roster');renderRoster([],'ufc','u-all'); renderRoster([],'tennis','t-roster');renderRoster([],'tennis','t-all'); // Fire both refresh('ufc');refresh('tennis'); timers.ufc=setInterval(()=>refresh('ufc'),60000); timers.tennis=setInterval(()=>refresh('tennis'),60000); </script> </body> </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sharp Tracker — UFC & Tennis</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0a;--s1:#111;--s2:#181818;--b1:#222;--b2:#2a2a2a;--text:#e8e8e8;--muted:#555;--dim:#333;--green:#00ff88;--gdim:#001a0d;--gmid:#00cc66;--red:#ff3355;--amber:#ffaa00;--adim:#1a1000;--purple:#aa77ff;--pdim:#140a26;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:14px;min-height:100vh;padding:20px;}
+.scanline{position:fixed;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.025) 2px,rgba(0,0,0,0.025) 4px);pointer-events:none;z-index:0;}
+.wrap{max-width:1200px;margin:0 auto;position:relative;z-index:1;}
+header{display:flex;align-items:flex-end;justify-content:space-between;border-bottom:1px solid var(--b1);padding-bottom:14px;margin-bottom:20px;}
+.logo-main{font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:600;letter-spacing:-0.5px;}
+.ufc-col{color:var(--green);}.sep{color:var(--dim);margin:0 6px;}.ten-col{color:var(--purple);}
+.logo-sub{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:3px;}
+.hdr-right{display:flex;align-items:center;gap:12px;}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s infinite;}
+.live-dot.loading{background:var(--amber);box-shadow:0 0 8px var(--amber);animation:none;}
+.live-dot.error{background:var(--red);box-shadow:0 0 8px var(--red);animation:none;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+.status-text{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);}
+.sport-tabs{display:flex;gap:0;margin-bottom:20px;border-bottom:1px solid var(--b1);}
+.sport-tab{font-family:'IBM Plex Mono',monospace;font-size:12px;text-transform:uppercase;letter-spacing:1px;padding:10px 24px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.15s;}
+.sport-tab.active-ufc{color:var(--green);border-bottom-color:var(--green);}
+.sport-tab.active-tennis{color:var(--purple);border-bottom-color:var(--purple);}
+.sport-tab.active-act{color:var(--amber);border-bottom-color:var(--amber);}
+.tab-count{font-size:10px;margin-left:4px;opacity:0.7;}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;}
+.metric{background:var(--s1);border:1px solid var(--b1);padding:14px;font-family:'IBM Plex Mono',monospace;}
+.metric-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.metric-val{font-size:24px;font-weight:600;color:var(--text);}
+.gc{color:var(--green);}.pc{color:var(--purple);}.ac{color:var(--amber);}
+.controls{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+button{background:transparent;border:1px solid var(--b2);color:var(--text);padding:7px 14px;font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;transition:all 0.15s;}
+button.ufc-btn:hover{border-color:var(--green);color:var(--green);}
+button.ten-btn:hover{border-color:var(--purple);color:var(--purple);}
+select{background:var(--s1);border:1px solid var(--b2);color:var(--text);padding:7px 10px;font-family:'IBM Plex Mono',monospace;font-size:12px;}
+.last-upd{margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);}
+.alert{border:1px solid var(--amber);background:var(--adim);padding:10px 14px;margin-bottom:14px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--amber);display:none;}
+.section-head{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:2px;border-bottom:1px solid var(--b1);padding-bottom:7px;margin-bottom:10px;}
+.two-col{display:grid;grid-template-columns:1fr 320px;gap:18px;align-items:start;}
+.positions-area{display:flex;flex-direction:column;gap:8px;}
+.no-pos{background:var(--s1);border:1px solid var(--b1);padding:28px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);}
+.pos-card{background:var(--s1);border:1px solid var(--b1);padding:14px;transition:border-color 0.2s;animation:fadeIn 0.3s ease;}
+.pos-card.new-ufc{border-color:var(--green);background:var(--gdim);}
+.pos-card.new-tennis{border-color:var(--purple);background:var(--pdim);}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-3px);}to{opacity:1;transform:none;}}
+.pos-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:7px;}
+.pos-trader{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;text-decoration:none;}
+.pos-trader.gt{color:var(--green);}.pos-trader.gt:hover{text-decoration:underline;}
+.pos-trader.pt{color:var(--purple);}.pos-trader.pt:hover{text-decoration:underline;}
+.pos-trader-meta{font-size:11px;color:var(--muted);margin-top:2px;}
+.new-badge{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:2px 8px;font-weight:600;}
+.nb-ufc{background:var(--green);color:#000;}.nb-tennis{background:var(--purple);color:#000;}
+.pos-pick{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;color:var(--text);margin-bottom:3px;}
+.pos-event{font-size:11px;color:var(--muted);margin-bottom:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pos-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+.stat{background:var(--s2);padding:7px 9px;}
+.stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;}
+.stat-val{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;color:var(--text);}
+.stat-val.pos{color:var(--green);}.stat-val.neg{color:var(--red);}
+.sharps-list{display:flex;flex-direction:column;gap:5px;}
+.sharp-row{background:var(--s1);border:1px solid var(--b1);padding:9px 11px;display:flex;align-items:center;gap:9px;transition:border-color 0.2s;}
+.sharp-row.au{border-color:var(--gmid);}.sharp-row.at{border-color:var(--purple);}
+.sharp-rank{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--dim);width:18px;flex-shrink:0;text-align:center;}
+.sharp-avatar{width:26px;height:26px;border-radius:2px;background:var(--s2);border:1px solid var(--b2);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;color:var(--muted);flex-shrink:0;}
+.sharp-row.au .sharp-avatar{color:var(--green);border-color:var(--green);}
+.sharp-row.at .sharp-avatar{color:var(--purple);border-color:var(--purple);}
+.sharp-info{flex:1;min-width:0;}
+.sharp-name{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:none;color:var(--text);display:block;}
+.sharp-name.ul:hover{color:var(--green);}.sharp-name.pl:hover{color:var(--purple);}
+.sharp-stats{font-size:10px;color:var(--muted);margin-top:1px;}
+.sharp-status{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:2px 6px;border:1px solid var(--b2);color:var(--muted);flex-shrink:0;}
+.sharp-row.au .sharp-status{border-color:var(--green);color:var(--green);}
+.sharp-row.at .sharp-status{border-color:var(--purple);color:var(--purple);}
+.inner-tabs{display:flex;gap:0;margin-bottom:14px;border-bottom:1px solid var(--b1);}
+.inner-tab{font-family:'IBM Plex Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:1px;padding:7px 16px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;}
+.inner-tab.active{color:var(--text);border-bottom-color:var(--text);}
+.activity-feed{display:flex;flex-direction:column;gap:5px;}
+.activity-row{background:var(--s1);border:1px solid var(--b1);padding:9px 13px;display:flex;gap:10px;font-family:'IBM Plex Mono',monospace;animation:fadeIn 0.3s ease;}
+.act-time{font-size:10px;color:var(--muted);flex-shrink:0;margin-top:1px;}
+.act-body{font-size:12px;color:var(--text);line-height:1.5;}
+.au-t{color:var(--green);}.at-t{color:var(--purple);}.act-pick{color:var(--amber);}
+@media(max-width:900px){.two-col{grid-template-columns:1fr;}.metrics{grid-template-columns:repeat(2,1fr);}.pos-stats{grid-template-columns:repeat(2,1fr);}}
+</style>
+</head>
+<body>
+<div class="scanline"></div>
+<div class="wrap">
+<header>
+  <div>
+    <div class="logo-main"><span class="ufc-col">UFC</span><span class="sep">/</span><span class="ten-col">TENNIS</span> SHARP TRACKER</div>
+    <div class="logo-sub">Polymarket · 20 Elite Wallets · Live</div>
+  </div>
+  <div class="hdr-right">
+    <div class="live-dot loading" id="dot"></div>
+    <div class="status-text" id="statusText">initializing...</div>
+  </div>
+</header>
+<div class="sport-tabs">
+  <div class="sport-tab active-ufc" id="stUFC" onclick="switchSport('ufc')">UFC <span class="tab-count" id="ufcCnt"></span></div>
+  <div class="sport-tab" id="stTennis" onclick="switchSport('tennis')">Tennis <span class="tab-count" id="tenCnt"></span></div>
+  <div class="sport-tab" id="stAct" onclick="switchSport('activity')">Activity Log <span class="tab-count" id="actCnt"></span></div>
+</div>
+<div id="ufcPanel">
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">UFC sharps tracked</div><div class="metric-val gc">10</div></div>
+    <div class="metric"><div class="metric-label">open positions</div><div class="metric-val gc" id="u-mPos">—</div></div>
+    <div class="metric"><div class="metric-label">sharps active</div><div class="metric-val ac" id="u-mAct">—</div></div>
+    <div class="metric"><div class="metric-label">last refresh</div><div class="metric-val" id="u-mTime" style="font-size:14px;">—</div></div>
+  </div>
+  <div class="alert" id="u-alert"></div>
+  <div class="controls">
+    <button class="ufc-btn" onclick="refresh('ufc')" id="u-btn">[ refresh UFC ]</button>
+    <select id="u-int" onchange="setAuto('ufc')">
+      <option value="0">manual only</option><option value="30">every 30s</option><option value="60" selected>every 60s</option><option value="120">every 2min</option><option value="300">every 5min</option>
+    </select>
+    <span class="last-upd" id="u-upd">—</span>
+  </div>
+  <div class="inner-tabs">
+    <div class="inner-tab active" onclick="innerTab('ufc','pos',this)">positions</div>
+    <div class="inner-tab" onclick="innerTab('ufc','all',this)">all sharps</div>
+  </div>
+  <div id="ufc-pos">
+    <div class="two-col">
+      <div><div class="section-head">open UFC positions</div><div class="positions-area" id="u-posArea"><div class="no-pos">loading...</div></div></div>
+      <div><div class="section-head">UFC roster</div><div class="sharps-list" id="u-roster"></div></div>
+    </div>
+  </div>
+  <div id="ufc-all" style="display:none;">
+    <div class="section-head">all 10 UFC sharps</div>
+    <div class="sharps-list" id="u-all"></div>
+  </div>
+</div>
+<div id="tennisPanel" style="display:none;">
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Tennis sharps tracked</div><div class="metric-val pc">10</div></div>
+    <div class="metric"><div class="metric-label">open positions</div><div class="metric-val pc" id="t-mPos">—</div></div>
+    <div class="metric"><div class="metric-label">sharps active</div><div class="metric-val ac" id="t-mAct">—</div></div>
+    <div class="metric"><div class="metric-label">last refresh</div><div class="metric-val" id="t-mTime" style="font-size:14px;">—</div></div>
+  </div>
+  <div class="alert" id="t-alert"></div>
+  <div class="controls">
+    <button class="ten-btn" onclick="refresh('tennis')" id="t-btn">[ refresh Tennis ]</button>
+    <select id="t-int" onchange="setAuto('tennis')">
+      <option value="0">manual only</option><option value="30">every 30s</option><option value="60" selected>every 60s</option><option value="120">every 2min</option><option value="300">every 5min</option>
+    </select>
+    <span class="last-upd" id="t-upd">—</span>
+  </div>
+  <div class="inner-tabs">
+    <div class="inner-tab active" onclick="innerTab('tennis','pos',this)">positions</div>
+    <div class="inner-tab" onclick="innerTab('tennis','all',this)">all sharps</div>
+  </div>
+  <div id="tennis-pos">
+    <div class="two-col">
+      <div><div class="section-head">open Tennis positions</div><div class="positions-area" id="t-posArea"><div class="no-pos">loading...</div></div></div>
+      <div><div class="section-head">Tennis roster</div><div class="sharps-list" id="t-roster"></div></div>
+    </div>
+  </div>
+  <div id="tennis-all" style="display:none;">
+    <div class="section-head">all 10 Tennis sharps</div>
+    <div class="sharps-list" id="t-all"></div>
+  </div>
+</div>
+<div id="actPanel" style="display:none;">
+  <div class="section-head">activity log</div>
+  <div class="activity-feed" id="actFeed"><div class="no-pos">monitoring... no new positions detected yet</div></div>
+</div>
+</div>
+<script>
+const UFC=[
+  {n:'LlamaEnjoyer',w:'0x9b979a065641e8cfde3022a30ed2d9415cf55e12',pm:'llamaenjoyer',roi:932,wr:97.4,pnl:124140,tr:417},
+  {n:'MaiHaze',w:'0x8f053ac26c46b27f304cb51ae35dc6f677e3c0b8',pm:'maihaze',roi:1096,wr:88.5,pnl:68259,tr:98},
+  {n:'JonasTheWolf',w:'0x0940a70f216e2fd077f4f01044c4152f05e13640',pm:null,roi:476,wr:85.7,pnl:21242,tr:14},
+  {n:'gmanas',w:'0xe90bec87d9ef430f27f9dcfe72c34b76967d5da2',pm:null,roi:284,wr:63.6,pnl:604921,tr:48},
+  {n:'supamanguy',w:'0xa4f5650a655502b2e2bc66636d347a2fd8281079',pm:null,roi:400,wr:66.7,pnl:145457,tr:16},
+  {n:'ilovecircle',w:'0xa9878e59934ab507f9039bcb917c1bae0451141d',pm:null,roi:188,wr:70.0,pnl:308784,tr:29},
+  {n:'MrSparkly',w:'0xd0b4c4c020abdc88ad9a884f999f3d8cff8ffed6',pm:null,roi:157,wr:73.3,pnl:284451,tr:16},
+  {n:'Tiger200',w:'0x6211f97a76ed5c4b1d658f637041ac5f293db89e',pm:null,roi:164,wr:83.3,pnl:203257,tr:6},
+  {n:'gopfan2',w:'0xf2f6af4f27ec2dcf4072095ab804016e14cd5817',pm:null,roi:193,wr:71.4,pnl:86095,tr:15},
+  {n:'S-Works',w:'0xee00ba338c59557141789b127927a55f5cc5cea1',pm:null,roi:87,wr:78.6,pnl:225755,tr:149}
+];
+const TENNIS=[
+  {n:'AgricultureSecretary',w:'0x6ffb4354cbe6e0f9989e3b55564ec5fb8646a834',pm:'AgricultureSecretary',roi:2051,wr:95.2,pnl:67526,tr:310},
+  {n:'Jrdvbzf',w:'0xc45014250244ba18981aed4dd30378b558b6e677',pm:'Jrdvbzf',roi:1179,wr:77.8,pnl:123232,tr:10},
+  {n:'0x246b',w:'0x246be8a4e3805e318801b79ad1ee1268d5fbfb5b',pm:null,roi:1057,wr:83.5,pnl:86584,tr:88},
+  {n:'Vanchalkenstein',w:'0x9c16127eccf031df45461ef1e04b52ea286a09cb',pm:'Vanchalkenstein',roi:1035,wr:67.7,pnl:258430,tr:33},
+  {n:'Comeback12345',w:'0x743510ee9f21e24071c4e28edab4653df44ea620',pm:'Comeback12345',roi:1034,wr:80.0,pnl:83241,tr:33},
+  {n:'Kakusthavarma',w:'0x5ec1272b672931a308175a122f6f191cd7bc057c',pm:'Kakusthavarma',roi:888,wr:86.4,pnl:105338,tr:23},
+  {n:'AleksandrKostyliev',w:'0xee035898c9ec311c6692e08b465ea388380c3eea',pm:'AleksandrKostyliev',roi:844,wr:80.0,pnl:110615,tr:59},
+  {n:'Stavenson',w:'0xf5fe759cece500f58a431ef8dacea321f6e3e23d',pm:'Stavenson',roi:377,wr:89.7,pnl:144350,tr:327},
+  {n:'08AF',w:'0x49007e1e636d0e922d0122a02ea743e41d194a72',pm:'08AF',roi:380,wr:88.2,pnl:68226,tr:178},
+  {n:'LawsuitEvidence',w:'0x4c814578c17f53118b312165873059a463a0fce3',pm:'LawsuitEvidenceForColeBartiromo19',roi:591,wr:91.7,pnl:61383,tr:29}
+];
+const UFC_KW=['ufc','mma','fight night','zuffa','octagon'];
+const TEN_KW=['tennis','atp','wta','wimbledon','french open','us open','australian open','roland garros','monte carlo','madrid','indian wells','miami','rome masters','barcelona open','munich','estoril','lyon','geneva','halle'];
+const PROXY='https://corsproxy.io/?url=';
+let timers={ufc:null,tennis:null},prevK={ufc:new Set(),tennis:new Set()},actLog=[];
+function pmLink(t){return t.pm?'https://polymarket.com/@'+t.pm:'https://polymarket.com/profile/'+t.w;}
+function relevant(title,sport){const txt=(title||'').toLowerCase();return(sport==='ufc'?UFC_KW:TEN_KW).some(k=>txt.includes(k));}
+function fmt$(n){const a=Math.abs(Math.round(n));return a>=1000?'$'+(a/1000).toFixed(1)+'k':'$'+a;}
+function ini(n){return n.slice(0,2).toUpperCase();}
+function tnow(){return new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});}
+function setStatus(t,type){document.getElementById('statusText').textContent=t;document.getElementById('dot').className='live-dot'+(type?' '+type:'');}
+async function fetchT(t,sport){
+  const target='https://data-api.polymarket.com/positions?user='+t.w+'&sizeThreshold=0.01&limit=500';
+  const r=await fetch(PROXY+encodeURIComponent(target));
+  if(!r.ok)throw new Error('HTTP '+r.status);
+  const d=await r.json();
+  return(d||[]).filter(p=>p.currentValue>0.5&&relevant(p.title,sport)).map(p=>({
+    name:t.n,roi:t.roi,wr:t.wr,w:t.w,pm:t.pm,sport,
+    title:p.title,outcome:p.outcome,val:p.currentValue,inv:p.initialValue,pnl:p.cashPnl,pct:p.percentPnl,
+    key:t.w+'|'+p.asset
+  }));
+}
+function renderPos(all,sport){
+  const p=sport==='ufc'?'u':'t';
+  const newK=new Set(all.map(x=>x.key));
+  const newOnes=all.filter(x=>prevK[sport].size>0&&!prevK[sport].has(x.key));
+  if(newOnes.length){
+    const al=document.getElementById(p+'-alert');
+    al.style.display='block';
+    al.textContent='>> NEW: '+newOnes.map(x=>x.name.toUpperCase()+' -> '+x.title+' ['+x.outcome+']').join(' | ');
+    newOnes.forEach(x=>actLog.unshift({time:tnow(),name:x.name,title:x.title,outcome:x.outcome,val:x.val,sport}));
+    renderAct();
+    document.getElementById('actCnt').textContent='['+actLog.length+']';
+  }
+  prevK[sport]=newK;
+  const area=document.getElementById(p+'-posArea');
+  const isufc=sport==='ufc';
+  if(!all.length){area.innerHTML='<div class="no-pos">no open '+sport+' positions<br>monitoring continues...</div>';return;}
+  area.innerHTML=all.map(x=>{
+    const isNew=newOnes.some(n=>n.key===x.key);
+    const pc=x.pnl>0?'pos':x.pnl<0?'neg':'';
+    const ps=(x.pnl>=0?'+':'-')+fmt$(x.pnl);
+    const link=x.pm?'https://polymarket.com/@'+x.pm:'https://polymarket.com/profile/'+x.w;
+    return '<div class="pos-card'+(isNew?isufc?' new-ufc':' new-tennis':'')+'">'+
+      '<div class="pos-top"><div>'+
+      '<a class="pos-trader '+(isufc?'gt':'pt')+'" href="'+link+'" target="_blank">'+x.name+'</a>'+
+      '<div class="pos-trader-meta">ROI '+x.roi+'% · '+x.wr+'% win rate</div></div>'+
+      (isNew?'<span class="new-badge '+(isufc?'nb-ufc':'nb-tennis')+'">NEW</span>':'')+
+      '</div><div class="pos-pick">'+x.outcome+'</div><div class="pos-event">'+x.title+'</div>'+
+      '<div class="pos-stats">'+
+      '<div class="stat"><div class="stat-label">invested</div><div class="stat-val">'+fmt$(x.inv)+'</div></div>'+
+      '<div class="stat"><div class="stat-label">value now</div><div class="stat-val">'+fmt$(x.val)+'</div></div>'+
+      '<div class="stat"><div class="stat-label">unrealized</div><div class="stat-val '+pc+'">'+ps+'</div></div>'+
+      '<div class="stat"><div class="stat-label">% P&L</div><div class="stat-val '+pc+'">'+Math.round(x.pct)+'%</div></div>'+
+      '</div></div>';
+  }).join('');
+}
+function renderRoster(all,sport,id){
+  const traders=sport==='ufc'?UFC:TENNIS;
+  const active=new Set(all.map(x=>x.name));
+  const isufc=sport==='ufc';
+  document.getElementById(id).innerHTML=traders.map((t,i)=>{
+    const isA=active.has(t.n);
+    const link=pmLink(t);
+    return '<div class="sharp-row'+(isA?(isufc?' au':' at'):'')+'">'+
+      '<div class="sharp-rank">'+(i+1)+'</div>'+
+      '<div class="sharp-avatar">'+ini(t.n)+'</div>'+
+      '<div class="sharp-info">'+
+      '<a class="sharp-name '+(isufc?'ul':'pl')+'" href="'+link+'" target="_blank">'+t.n+'</a>'+
+      '<div class="sharp-stats">ROI '+t.roi+'% · WR '+t.wr+'% · '+t.tr+' trades · +'+fmt$(t.pnl)+'</div>'+
+      '</div><div class="sharp-status">'+(isA?'LIVE':'idle')+'</div></div>';
+  }).join('');
+}
+function renderAct(){
+  const f=document.getElementById('actFeed');
+  if(!actLog.length){f.innerHTML='<div class="no-pos">monitoring... no new positions detected yet</div>';return;}
+  f.innerHTML=actLog.map(a=>'<div class="activity-row"><div class="act-time">'+a.time+'</div><div class="act-body"><span class="'+(a.sport==='ufc'?'au-t':'at-t')+'">'+a.name+'</span> ['+a.sport.toUpperCase()+'] opened <span class="act-pick">'+a.outcome+'</span> on '+a.title+' · '+fmt$(a.val)+'</div></div>').join('');
+}
+async function refresh(sport){
+  const p=sport==='ufc'?'u':'t';
+  const traders=sport==='ufc'?UFC:TENNIS;
+  setStatus('fetching '+sport+'...','loading');
+  document.getElementById(p+'-btn').textContent='[ fetching... ]';
+  document.getElementById(p+'-alert').style.display='none';
+  try{
+    const res=await Promise.all(traders.map(t=>fetchT(t,sport)));
+    const all=res.flat();
+    renderPos(all,sport);
+    renderRoster(all,sport,p+'-roster');
+    renderRoster(all,sport,p+'-all');
+    const actC=new Set(all.map(x=>x.name)).size;
+    document.getElementById(p+'-mPos').textContent=all.length;
+    document.getElementById(p+'-mAct').textContent=actC;
+    const tn=tnow();
+    document.getElementById(p+'-mTime').textContent=tn;
+    document.getElementById(p+'-upd').textContent='refreshed '+tn;
+    document.getElementById(sport==='ufc'?'ufcCnt':'tenCnt').textContent=all.length>0?'['+all.length+']':'';
+    setStatus('live · corsproxy -> polymarket','');
+  }catch(e){
+    setStatus('error: '+e.message,'error');
+    document.getElementById(p+'-posArea').innerHTML='<div class="no-pos">fetch error: '+e.message+'</div>';
+  }
+  document.getElementById(p+'-btn').textContent=sport==='ufc'?'[ refresh UFC ]':'[ refresh Tennis ]';
+}
+function setAuto(sport){
+  if(timers[sport])clearInterval(timers[sport]);
+  const s=parseInt(document.getElementById(sport==='ufc'?'u-int':'t-int').value);
+  if(s>0)timers[sport]=setInterval(()=>refresh(sport),s*1000);
+}
+function switchSport(sport){
+  document.getElementById('ufcPanel').style.display=sport==='ufc'?'':'none';
+  document.getElementById('tennisPanel').style.display=sport==='tennis'?'':'none';
+  document.getElementById('actPanel').style.display=sport==='activity'?'':'none';
+  document.getElementById('stUFC').className='sport-tab'+(sport==='ufc'?' active-ufc':'');
+  document.getElementById('stTennis').className='sport-tab'+(sport==='tennis'?' active-tennis':'');
+  document.getElementById('stAct').className='sport-tab'+(sport==='activity'?' active-act':'');
+}
+function innerTab(sport,view,el){
+  const p=sport==='ufc'?'ufc':'tennis';
+  document.getElementById(p+'-pos').style.display=view==='pos'?'':'none';
+  document.getElementById(p+'-all').style.display=view==='all'?'':'none';
+  el.closest('.inner-tabs').querySelectorAll('.inner-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+}
+renderRoster([],'ufc','u-roster');renderRoster([],'ufc','u-all');
+renderRoster([],'tennis','t-roster');renderRoster([],'tennis','t-all');
+refresh('ufc');refresh('tennis');
+timers.ufc=setInterval(()=>refresh('ufc'),60000);
+timers.tennis=setInterval(()=>refresh('tennis'),60000);
+</script>
+</body>
+</html>
